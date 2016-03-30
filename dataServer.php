@@ -18,20 +18,19 @@ $tableUsed = "CodeChallengeTable";
 //Open Database connection using PDO
 try {
 	$dbConnection = new PDO($dataBaseType . ":host=$serverName;dbname=$dataBaseUsed",$userName,$passWord);
-//set PDO ERROR MODE EXCEPTION
+    //set PDO ERROR MODE EXCEPTION
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-//print_r("Database connected successfully!");
+    //print_r("Database connected successfully!");
 	echo "Connected DB:" . $dataBaseUsed . "<br>";
 	
 }
 catch(PDOException $errOut){
 	echo $errOut->getMessage() . "<br>" . "Creating new db with default values";
-//May load csv or manually input default values
+    //May load csv or manually input default values
 	try{
-            $dbConnection = null;
 	    $dbConnection = new PDO($dataBaseType . ":host=$serverName",$userName,$passWord);
 	    $dbConnection->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-//Create database and table		
+        //Create database and table		
 		$sql = "CREATE DATABASE $dataBaseUsed; USE $dataBaseUsed";
 		$dbConnection->exec($sql);
 		echo "Created db" . $dataBaseUsed;
@@ -44,17 +43,27 @@ catch(PDOException $errOut){
 		        )";
 		$dbConnection->exec($sql);
 		echo "Created table" . $tableUsed;
-//Following code for manually set default table values
-                
-		$dbConnection->beginTransaction();
-		$dbConnection->exec("INSERT INTO $tableUsed (idemployee,department,employeeno,name,gender) VALUES (1,'Engineer','1234567890','Tom','Male')");
-		$dbConnection->exec("INSERT INTO $tableUsed (idemployee,department,employeeno,name,gender) VALUES (3,'Sales','1472583690','Jenny','Female')");
+        //Following code for importing csv file
+		//load the file. Throw exception if failed
+        $fileName = 'employee.csv'; 
+		if ( !file_exists($fileName) ) {
+            throw new Exception('File not found.');
+        }
+		$handle = fopen($fileName, "r");
+        if ( !$handle ) {
+            throw new Exception('File open failed.');
+        }
+		//Get the column names. For auto column names, need store those info and use them as SQL elements.
+        $dataNames = fgetcsv($handle,1000,';');
+        $num = count($dataNames);
+		//Insert the data rows of csv file into Database
+        $dbConnection->beginTransaction();		
+		while ($data = fgetcsv($handle,1000,';')) {
+            $dbConnection->exec("INSERT INTO $tableUsed (idemployee,department,employeeno,name,gender) VALUES ($data[0],'$data[1]','$data[2]','$data[3]','$data[4]')");
+        }
 		$dbConnection->commit();
-		
-		echo "Created and Connected DB" . $dataBaseUsed;
-		
-	}
-    catch(PDOException $errOut){
+    }
+    catch(Exception $errOut){
 		echo $sql . "<br>" . $errOut->getMessage();
 	}			
 }
@@ -63,12 +72,12 @@ catch(PDOException $errOut){
 try {
     
 	
-//Make a query to get all the results
+    //Make a query to get all the results
     $sql = "SELECT * FROM $tableUsed WHERE gender='$queryString'";
 	$resultStatement = $dbConnection->prepare($sql,array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 	$resultStatement->execute();
 	
-//Output the responseText as an html table element
+    //Output the responseText as an html table element
 	echo "<table>
           <tr>
           <th>id</th>
