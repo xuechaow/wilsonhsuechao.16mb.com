@@ -1,0 +1,5 @@
+1. while ($row = $resultStatement->fetch(PDO::FETCH_NUM, PDO::FETCH_ORI_NEXT)) should be FETCH_ASSOC
+2. ARRT should be ATTR
+3. $sql = "WHERE 'Female'"  not "WHERE Female"
+4. databaseUsed, databaseType should be $databseUsed,$databaseType.
+5. bindParam did not find out. Replaced with begintransaction

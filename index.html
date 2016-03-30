@@ -1,12 +1,68 @@
+<!--
+Content:Client Webpage
+Arthor: Xuechao Wu
+Time: 2016/03/29
+-->
+<!DOCTYPE html>
 <html>
- <body>
+<!--style settings here
+<style>
+    
+</style>    
+-->
+<head>
+<script>
+//Display the data by the option user selected.
+function listEmployee(str){
+  var xhttp;
+  if(str == "") {
+    document.getElementById("textFromServer").innerHTML = "Select an option";
+	return; //Avoid unnecessary scripts.
+  }
+  xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function () {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+	  document.getElementById("txtFromServer").innerHTML = xhttp.responseText;
+	}
+	if(xhttp.status == 404){
+	  document.getElementById("txtFromServer").innerHTML = "404:Server Not Found"  
+	}
+  };
+  xhttp.open("GET","dataServer.php?queryString="+str,true);
+  xhttp.send();
+  
+}
 
- <form action="my1.php" method="get">
- Name: <input type="text" name="name"><br>
- E-mail: <input type="text" name="email"><br>
- <input type="submit" value="Submit This Query">
- <a href = "create_form_user.html"> Click this </a>
- </form>
+</script>
+</head>
 
- </body>
- </html> 
+<body>
+<form action=""> 
+  <select name="customers" onchange="listEmployee(this.value)">
+    <option value="">Select an Option:</option>
+    <option value="Female">Female</option>
+    <option value="Male">Male</option>
+  </select>
+</form>
+
+<br>
+
+<div id="txtFromServer">Employees info are listed here...</div>
+
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
