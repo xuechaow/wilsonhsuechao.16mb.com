@@ -4,32 +4,39 @@
   By Xuechao
   2016/03/29
 */
-$queryString = $_REQUEST["queryString"];
 
+/*----------Globals Declared here----------*/
 //Database connection information
 $dataBaseType = "mysql";
 $serverName = "localhost";
 $userName = "root";
-$passWord = "xizizi620";
+$passWord = "password";
 $dataBaseUsed = "EV_EMPLOYEE";
 $tableUsed = "CodeChallengeTable";
 
-
+/*----------Scripts Start Here----------*/
 //Open Database connection using PDO
 try {
+	
+	//Establish a new connection
 	$dbConnection = new PDO($dataBaseType . ":host=$serverName;dbname=$dataBaseUsed",$userName,$passWord);
     //set PDO ERROR MODE EXCEPTION
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-    //print_r("Database connected successfully!");
-	echo "Connected DB:" . $dataBaseUsed . "<br>";
-	
+    //print_r("Database connected successfully!");	
+
 }
 catch(PDOException $errOut){
+	
+	//Print the failure info
 	echo $errOut->getMessage() . "<br>" . "Creating new db with default values";
-    //May load csv or manually input default values
+	
+    //Create a new DB and table for loaded csv as default values
 	try{
+		
+		//New PHP DB Obeject without specifying DB
 	    $dbConnection = new PDO($dataBaseType . ":host=$serverName",$userName,$passWord);
 	    $dbConnection->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+		
         //Create database and table		
 		$sql = "CREATE DATABASE $dataBaseUsed; USE $dataBaseUsed";
 		$dbConnection->exec($sql);
@@ -47,11 +54,11 @@ catch(PDOException $errOut){
 		//load the file. Throw exception if failed
         $fileName = 'employee.csv'; 
 		if ( !file_exists($fileName) ) {
-            throw new Exception('File not found.');
+            throw new Exception("File not found.");
         }
 		$handle = fopen($fileName, "r");
         if ( !$handle ) {
-            throw new Exception('File open failed.');
+            throw new Exception("File open failed.");
         }
 		//Get the column names. For auto column names, need store those info and use them as SQL elements.
         $dataNames = fgetcsv($handle,1000,';');
@@ -62,54 +69,108 @@ catch(PDOException $errOut){
             $dbConnection->exec("INSERT INTO $tableUsed (idemployee,department,employeeno,name,gender) VALUES ($data[0],'$data[1]','$data[2]','$data[3]','$data[4]')");
         }
 		$dbConnection->commit();
+		
     }
     catch(Exception $errOut){
+		
+		//Just send out server errors back
 		echo $sql . "<br>" . $errOut->getMessage();
-	}			
-}
-
-//Deal with request from clients
-try {
-    
-	
-    //Make a query to get all the results
-	if($queryString === "All"){
-        $sql = "SELECT * FROM $tableUsed ";
-	} else if ($queryString === "Engineer" or $queryString === "Sales" or $queryString === "Marketing") {
-		$sql = "SELECT * FROM $tableUsed WHERE department='$queryString'";
-	} else if ($queryString === "Male" or $queryString === "Female") {
-		$sql = "SELECT * FROM $tableUsed WHERE gender='$queryString'";
+		
 	}
 	
-	$resultStatement = $dbConnection->prepare($sql,array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-	$resultStatement->execute();
-	
-    //Output the responseText as an html table element
-	echo "<table>
-          <tr>
-          <th>idemployee</th>
-          <th>department</th>
-          <th>employeeno</th>
-		  <th>name</th>
-		  <th>gender</th>
-		  </tr>";
-    while ($row = $resultStatement->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_NEXT)){
-       echo "<tr>";
-       echo "<td>" . $row['idemployee'] . "</td>";
-       echo "<td>" . $row['department'] . "</td>";
-       echo "<td>" . $row['employeeno'] . "</td>";
-       echo "<td>" . $row['name'] . "</td>";
-       echo "<td>" . $row['gender'] . "</td>";
-       echo "</tr>";
-	   }
-    echo "</table>";
-	
-	$conn = null;
 }
-catch(PDOException $errOut){
-		echo $sql . "<br>" . $errOut->getMessage();
-	}
 
+
+//Deal with GET request from clients
+if ($_SERVER["REQUEST_METHOD"] == "GET") {
+	try {
+		$queryString = $_GET["queryString"];
+		//Make a query to get all the results
+		if($queryString === "All"){
+			$sql = "SELECT * FROM $tableUsed ";
+		} else if ($queryString === "Engineer" or $queryString === "Sales" or $queryString === "Marketing") {
+			$sql = "SELECT * FROM $tableUsed WHERE department='$queryString'";
+		} else if ($queryString === "Male" or $queryString === "Female") {
+			$sql = "SELECT * FROM $tableUsed WHERE gender='$queryString'";
+		}
+		
+		$resultStatement = $dbConnection->prepare($sql,array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+		$resultStatement->execute();
+		
+		//Part 2 of the challenge: calling dll to print helloworld.
+		echo "<h1>" . exec("ExecHelloDLL.exe") . "</h1>";
+		
+		//Output the responseText as an html table element
+		echo "<table>
+			  <tr>
+			  <th>idemployee</th>
+			  <th>department</th>
+			  <th>employeeno</th>
+			  <th>name</th>
+			  <th>gender</th>
+			  </tr>";
+		while ($row = $resultStatement->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_NEXT)){
+		   echo "<tr>";
+		   echo "<td>" . $row['idemployee'] . "</td>";
+		   echo "<td>" . $row['department'] . "</td>";
+		   echo "<td>" . $row['employeeno'] . "</td>";
+		   echo "<td>" . $row['name'] . "</td>";
+		   echo "<td>" . $row['gender'] . "</td>";
+		   echo "</tr>";
+		   }
+		echo "</table>";
+		
+		$dbConnection = null;
+	}
+	catch(PDOException $errOut){
+			echo $sql . "<br>" . $errOut->getMessage();
+	}
+}
+
+//Deal with the insertion operation
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	
+	try {
+		//Receive the form information and drop useless characters
+		$sqlDepartment = trimData($_POST["department"]);
+		$sqlEmployeeno = trimData($_POST["employeeno"]);
+		$sqlName = trimData($_POST["name"]);
+		$sqlGender = $_POST["gender"];//No need to verify from radios
+		
+		//Data Format Validation
+		if (!preg_match("/^[a-zA-Z]*$/",$sqlDepartment)) {
+            throw new Exception("Department format wrong!");
+        }
+		if (!preg_match("/^[0-9]*$/",$sqlEmployeeno)) {
+            throw new Exception("Employee Number format wrong!");
+        }
+		if (!preg_match("/^[A-Za-z ]*$/",$sqlName)) {
+            throw new Exception("Name format wrong!");
+        }
+		//No need to verify radio values.
+		
+		$sql = "INSERT INTO $tableUsed (department,employeeno,name,gender) VALUES ('$sqlDepartment','$sqlEmployeeno','$sqlName','$sqlGender')";
+		$dbConnection->exec($sql);
+		$dbConnection = null;
+		
+		echo "Inserted:" . $sqlDepartment . " " .$sqlEmployeeno . " " .$sqlName . " " .$sqlGender;
+	} 	catch(Exception $errOut){
+			//400:Bad Request
+			echo "Bad Request:" . $errOut->getMessage();
+			http_response_code(400);
+	}
+		
+}
+/*----------Scripts End Here----------*/
+
+/*----------functions defined here----------*/
+//Trim the useless parts of data like duplicate blanks tabs...etc.
+function trimData($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
 
 
 

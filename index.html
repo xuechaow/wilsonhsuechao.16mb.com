@@ -5,68 +5,67 @@ Time: 2016/03/29
 -->
 <!DOCTYPE html>
 <html>
-<!--style settings here
-<style>
-    
-</style>    
--->
 <head>
-<script>
-//Display the data by the option user selected.
-function listEmployee(str){
-  var xhttp;
-  if(str == "") {
-    document.getElementById("textFromServer").innerHTML = "Select an option";
-	return; //Avoid unnecessary scripts.
-  }
-  xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function () {
-    if (xhttp.readyState == 4 && xhttp.status == 200) {
-	  document.getElementById("txtFromServer").innerHTML = xhttp.responseText;
-	}
-	if(xhttp.status == 404){
-	  document.getElementById("txtFromServer").innerHTML = "404:Server Not Found"  
-	}
-  };
-  xhttp.open("GET","dataServer.php?queryString="+str,true);
-  xhttp.send();
-  
-}
-
-</script>
+	<meta charset="UTF-8">
+	<title>EverFocus Code Challenge</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="jquery-2.1.0.min.js"></script>
+	<script src="listEmployee.js"></script>
+	<script src="dataModel.js"></script>
 </head>
-
 <body>
-<form action=""> 
-  <select name="customers" onchange="listEmployee(this.value)">
-    <option value="All">All Employees</option>
-    <option value="Female">Female</option>
-    <option value="Male">Male</option>
-	<option value="Sales">Sales</option>
-	<option value="Marketing">Marketing</option>
-	<option value="Engineer">Engineer</option>
-  </select>
-</form>
+   <div id="page-wrapper">
+   
+	   <!-- Select Display Options -->
+       <form action=""> 
+          Select a category: 
+		  <select name="Employee" onchange="listEmployee(this.value)">
+               <option value="All">All Employees</option>
+               <option value="Female">Female</option>
+               <option value="Male">Male</option>
+	           <option value="Sales">Sales</option>
+	           <option value="Marketing">Marketing</option>
+	           <option value="Engineer">Engineer</option>
+           </select>
+       </form>
+	   
+	   <!-- Display the form as option selected. errFromServer for logs, txtFromServer for data-->
+	   <div id="txtFromServer" class="success">Employees info are listed here...</div>
+	   <div id="errFromServer" class="success">Server log</div>
+	   <script>listEmployee("All");</script>
+	   
+	   <!-- Input Field -->
+	   <form id="insertEmployee" method="post" action="dataServer.php">
+			<fieldset>
+				<legend>Personal information:</legend>
+				<div class="field">
+					<label>Department:</label>
+					<input type="text" id="department" name="department" required>
+				</div>
 
-<br>
+				<div class="field">	
+					<label>EmployeeNo:</label>
+					<input type="text" id="employeeNo" name="employeeno" required>
+				</div>
 
-<div id="txtFromServer">Employees info are listed here...</div>
-<script>listEmployee("All")</script>
+				<div class="field">
+					<label>Name:</label>
+					<input type="text" id="name" name="name" required>
+				</div>
+
+				<div class="field">
+					<label>Gender:</label>
+					Male<input type="radio" id="Male" name="gender" value="Male" checked> 
+					Female <input type="radio" id="Female" name="gender" value="Female"> 
+				</div>
+				
+				<div class="field">
+					<button type="submit">Save to Server</button>
+				</div>
+			</fieldset>
+		</form>
+</div>
 
 </body>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 </html>

@@ -3,3 +3,8 @@
 3. $sql = "WHERE 'Female'"  not "WHERE Female"
 4. databaseUsed, databaseType should be $databseUsed,$databaseType.
 5. bindParam did not find out. Replaced with begintransaction
+
+
+6. Use chrome is better
+   Edge IE10  refresh from server
+   
