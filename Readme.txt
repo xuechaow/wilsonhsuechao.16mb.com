@@ -4,7 +4,7 @@
 
 This a client-server architecture that would display employees' information in a web
 page. Finished all the requirements and bonus requirements. Added some individual features.
-
+Set up the MySQL account first, and use Chrome(best) or other browsers to open the index.html
 ------------------------------------------------------------------------------------
 Main Features(Basic Requirements):
  - By default, home page would be a display panel showing all the information stored in the employee database.
