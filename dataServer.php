@@ -73,14 +73,21 @@ try {
     
 	
     //Make a query to get all the results
-    $sql = "SELECT * FROM $tableUsed WHERE gender='$queryString'";
+	if($queryString === "All"){
+        $sql = "SELECT * FROM $tableUsed ";
+	} else if ($queryString === "Engineer" or $queryString === "Sales" or $queryString === "Marketing") {
+		$sql = "SELECT * FROM $tableUsed WHERE department='$queryString'";
+	} else if ($queryString === "Male" or $queryString === "Female") {
+		$sql = "SELECT * FROM $tableUsed WHERE gender='$queryString'";
+	}
+	
 	$resultStatement = $dbConnection->prepare($sql,array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
 	$resultStatement->execute();
 	
     //Output the responseText as an html table element
 	echo "<table>
           <tr>
-          <th>id</th>
+          <th>idemployee</th>
           <th>department</th>
           <th>employeeno</th>
 		  <th>name</th>
@@ -88,7 +95,7 @@ try {
 		  </tr>";
     while ($row = $resultStatement->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_NEXT)){
        echo "<tr>";
-       echo "<td>" . $row['id'] . "</td>";
+       echo "<td>" . $row['idemployee'] . "</td>";
        echo "<td>" . $row['department'] . "</td>";
        echo "<td>" . $row['employeeno'] . "</td>";
        echo "<td>" . $row['name'] . "</td>";
