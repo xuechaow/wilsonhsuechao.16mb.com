@@ -8,21 +8,22 @@
 /*----------Globals Declared here----------*/
 //Database connection information
 $dataBaseType = "mysql";
-$serverName = "localhost";
-$userName = "root";
-$passWord = "password";
-$dataBaseUsed = "EV_EMPLOYEE";
+$serverName = "mysql.hostinger.co.uk";
+$userName = "u628991109_xao5";
+$passWord = "7665997";
+$dataBaseUsed = "u628991109_xao5";
 $tableUsed = "CodeChallengeTable";
 
 /*----------Scripts Start Here----------*/
 //Open Database connection using PDO
 try {
-	
+
 	//Establish a new connection
 	$dbConnection = new PDO($dataBaseType . ":host=$serverName;dbname=$dataBaseUsed",$userName,$passWord);
     //set PDO ERROR MODE EXCEPTION
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-    //print_r("Database connected successfully!");	
+    //print_r("Database connected successfully!");
+
 
 }
 catch(PDOException $errOut){
@@ -37,10 +38,16 @@ catch(PDOException $errOut){
 	    $dbConnection = new PDO($dataBaseType . ":host=$serverName",$userName,$passWord);
 	    $dbConnection->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 		
-        //Create database and table		
+        //Create database and table
+		/* Dont use it if db exists
 		$sql = "CREATE DATABASE $dataBaseUsed; USE $dataBaseUsed";
 		$dbConnection->exec($sql);
 		echo "Created db" . $dataBaseUsed;
+        */
+
+        $sql = "USE $dataBaseUsed";
+		$dbConnection->exec($sql);
+
 		$sql = "CREATE TABLE $tableUsed (
 		        idemployee INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 				department VARCHAR(45),
@@ -98,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 		$resultStatement->execute();
 		
 		//Part 2 of the challenge: calling dll to print helloworld.
-		echo "<h1>" . exec("ExecHelloDLL.exe") . "</h1>";
+		//echo "<h1>" . exec("ExecHelloDLL.exe") . "</h1>";
 		
 		//Output the responseText as an html table element
 		echo "<table>
@@ -172,6 +179,27 @@ function trimData($data) {
   return $data;
 }
 
+/**
+ * Check if a table exists in the current database.
+ *
+ * @param PDO $pdo PDO instance connected to a database.
+ * @param string $table Table to search for.
+ * @return bool TRUE if table exists, FALSE if no table found.
+ */
+function tableExists($pdo, $table) {
+
+    // Try a select statement against the table
+    // Run it in try/catch in case PDO is in ERRMODE_EXCEPTION.
+    try {
+        $result = $pdo->query("SELECT 1 FROM $table LIMIT 1");
+    } catch (Exception $e) {
+        // We got an exception == table not found
+        return FALSE;
+    }
+
+    // Result is either boolean FALSE (no table found) or PDOStatement Object (table found)
+    return $result !== FALSE;
+}
 
 
 
@@ -196,4 +224,5 @@ function trimData($data) {
 
 
 
-?>
+
+?>	
