@@ -1,5 +1,5 @@
 ========================================================================
-    - Web Application: EverFocus Employee Management System Overview
+     Web Application: EverFocus Employee Management System Overview
 ========================================================================
 
 This a client-server architecture that would display employees' information in a web
