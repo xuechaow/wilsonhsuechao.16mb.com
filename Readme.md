@@ -1,10 +1,10 @@
 Web Application: EverFocus Employee Management System Overview
+------------------------------------------------------------------------------------
 
 This a client-server architecture that would display employees' information in a web
 page. Added some individual features.
-
 Set up the MySQL account first, and use Chrome(best) or other browsers to open the index.html
-------------------------------------------------------------------------------------
+
 Main Features(Basic Requirements):
  - By default, home page would be a display panel showing all the information stored in the employee database.
      - If there is no existing database for this information, server script will automatically create a new database.
