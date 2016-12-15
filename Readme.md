@@ -59,6 +59,7 @@ Set up the MySQL account first, and use Chrome(best) or other browsers to open t
 
  - Readme.txt and Bug_log.txt
     - User manual and development log.
+    
 ------------------------------------------------------------------------------------
 Other notes:
    - About  .dll
